@@ -1,0 +1,9 @@
+*.pem
+
+## Artifacts from the automatic AMI-ID discovery process
+build.json
+UUID
+*.nogit
+null.*.manifest
+
+*.auth

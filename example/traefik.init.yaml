@@ -1,0 +1,22 @@
+##
+# This file represents a 'typical' traefik config file. The CAPP tool will parse this file
+# and add any additional entrypoints needed to it. To 'start' only one entrypoint is defined; ping
+##
+api:
+  dashboard: true
+  insecure: false
+entryPoints:
+  ping:
+    address: :8081
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: true
+log:
+  level: DEBUG
+ping:
+  entryPoint: ping
+providers:
+  file:
+    directory: /etc/traefik/dynamic
+serversTransport:
+  insecureSkipVerify: true

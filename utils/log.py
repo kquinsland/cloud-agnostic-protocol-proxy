@@ -8,7 +8,7 @@ class LogCfg(object):
     """
     small class to massage user given log settings into the global logger config
     """
-    def __init__(self, cfg=dict):
+    def __init__(self, cfg: dict):
         """
         Sets up logging
         :param cfg: a dict containing a few log options

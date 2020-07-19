@@ -1,0 +1,87 @@
+################################################################
+#
+# Configuration for Traefik v2.
+# For this configuration, traefik is not meant to do anything
+#   besides forward from WAN:portA to host:portB.
+#
+# Unfortunately, traefik does not support dynamic configuration
+#   for the ingress listeners. The python tool will load this file
+#   parse the `entryPoints` and will re-write this file out w/
+#   updated entryPoints.
+#
+# This file is deposited via packer/salt; modify at your peril!
+#
+################################################################
+
+################################################################
+# Global configuration
+################################################################
+global:
+  # Don't bother
+  checkNewVersion: false
+
+  # Nothing wrong w/ letting them know it's in use
+  # See: https://docs.traefik.io/contributing/data-collection/
+  sendAnonymousUsage: true
+
+################################################################
+# Traefik logs configuration
+################################################################
+# Logs are output to STDOUT which is perfect as systemd will
+#   include the streams in journald
+log:
+  level: DEBUG
+################################################################
+# API and dashboard configuration
+# See: https://docs.traefik.io/v2.1/operations/api/
+################################################################
+
+# Enable API and dashboard
+api:
+  # Don't just have the api, also have a GUI
+  dashboard: true
+
+  # When enabled, the service is wired up do an entrypoint called "traefik" which appears to have no auth middleware
+  # and is on port 8081
+  ##
+  insecure: false
+
+################################################################
+# Ping configuration
+# See: https://docs.traefik.io/v2.1/operations/ping/
+################################################################
+
+# Enable ping endpoint; this is what consul-agent will check against!
+ping:
+  entryPoint: "ping"
+
+################################################################
+# Provider configuration
+# See: https://docs.traefik.io/providers/file/
+################################################################
+
+providers:
+  file:
+    # ALL yaml driving the dynamic bits stored here
+    directory: "{{dynamic_config_dir}}"
+
+################################################################
+# Backend Transports (GLOBAL)
+# See: https://docs.traefik.io/routing/overview/#insecureskipverify
+################################################################
+# That is, if traefik is going to forward traffic to a backend that
+#   presents a TLS certificate, we must tell traefik to ignore
+#   any self-signed certificates
+##
+serversTransport:
+  insecureSkipVerify: true
+
+################################################################
+# Entrypoints configuration
+################################################################
+
+entryPoints:
+  # the python portion of the CAPP tool will parse this file
+  # and re-write the file to disk with updates to this section
+  ping:
+    address: ":8081"

@@ -1,0 +1,9 @@
+{
+  "artifact_name": "cloud-agnostic-protocol-proxy",
+  "artifact_region": "sfo1",
+  "artifact_base": "ubuntu-20-04-x64",
+  "artifact_build_host_size": "s-1vcpu-1gb",
+  "build_hash": "f00d.babe",
+  "salt_log_level": "info",
+  "salt-env": "base"
+}

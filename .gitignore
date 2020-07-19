@@ -1,2 +1,9 @@
+# Auth file stays out of git  :)
 auth
+# As does venv
 venv
+# And all pacher_cache artifacts
+packer/protocol-proxy/packer_cache/*
+
+# My specific in.yaml
+in.yaml

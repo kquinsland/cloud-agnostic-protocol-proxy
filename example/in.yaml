@@ -1,0 +1,27 @@
+##
+# Config file to drive cloud agnostic protocol proxy
+##
+# Which cloud provider will we interrogate about IP address(es) to forward traffic to?
+cloud:
+  provider: "digitalocean"
+
+# List of k8 clusters and which proto/service/port to forward
+clusters:
+  606aeaef-3829-b234-123456789012:
+    tcp:
+      some_tcp_svc:
+        # We want to map the port 999
+        from: 999
+        # To the nodePort 30999 that k8 is expecting traffic on
+        to: 30999
+      https:
+        # Same deal as above:
+        #   the k8 clusters take traffic on 30443 and forward to the proper pod(s)
+        #   but we don't want users to have to add `:30443` to each URL
+        from: 443
+        to: 30443
+
+    udp:
+      some-weird-udp-service:
+        from: 5182
+        to: 30182

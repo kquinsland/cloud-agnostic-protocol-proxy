@@ -1,0 +1,26 @@
+tcp:
+  routers:
+    tcp-to-https:
+      entryPoints:
+        - https
+      rule: HostSNI(`*`)
+      service: https
+  services:
+    https:
+      loadBalancer:
+        servers:
+          - 64.245.100.9:30443
+          - 64.245.100.10:30443
+udp:
+  routers:
+    udp-to-some-weird-udp-service:
+      entryPoints:
+        - some-weird-udp-service
+      rule: HostSNI(`*`)
+      service: some-weird-udp-service
+  services:
+    some-weird-udp-service:
+      loadBalancer:
+        servers:
+          - 64.245.100.9:30182
+          - 64.245.100.10:30182

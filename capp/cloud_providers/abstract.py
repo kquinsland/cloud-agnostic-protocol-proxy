@@ -33,5 +33,5 @@ class AbstractProvider(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_cluster_ips(self):
+    def get_ips_by_cluster(self):
         pass

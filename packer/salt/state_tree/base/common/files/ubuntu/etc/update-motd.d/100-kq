@@ -1,0 +1,11 @@
+#!/bin/sh
+##
+# This file is managed by salt/packer
+# Lives at:
+#   /etc/update-motd.d/100-kq
+# Permissions:
+#   -rwxr-xr-x 1 root root
+##
+
+# Display ascii art to welcome :)
+/usr/bin/figlet "karl"

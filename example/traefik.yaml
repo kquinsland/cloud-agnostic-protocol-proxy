@@ -1,0 +1,24 @@
+api:
+  dashboard: true
+  insecure: false
+entryPoints:
+  https:
+    address: :443/tcp
+  ping:
+    address: :8081
+  some-weird-udp-service:
+    address: :5182/udp
+  some_tcp_svc:
+    address: :999/tcp
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: true
+log:
+  level: DEBUG
+ping:
+  entryPoint: ping
+providers:
+  file:
+    directory: /etc/traefik/dynamic
+serversTransport:
+  insecureSkipVerify: true

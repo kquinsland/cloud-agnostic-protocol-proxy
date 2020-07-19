@@ -4,3 +4,6 @@ python-digitalocean
 # An improved version of pprint
 # See: https://pypi.org/project/prettyprinter/
 prettyprinter~=0.18.0
+
+# Generates config file(s) for traefik
+pyyaml

@@ -1,0 +1,82 @@
+{
+  "description": "Cloud Agnostic Protocol Proxy",
+  "builders": [
+    {
+      "type": "digitalocean",
+      "image": "{{user `artifact_base`}}",
+      "region": "{{user `artifact_region`}}",
+      "size": "{{user `artifact_build_host_size`}}",
+      "ssh_username": "root",
+      "droplet_name": "packer-{{user `artifact_name`}}",
+      "ipv6": "True",
+      "snapshot_name": "{{user `artifact_name`}}-{{isotime \"2006-01-02T03:04:05\"}}",
+      "snapshot_regions": ["{{user `artifact_region`}}"],
+      "tags": [
+        "Name-{{user `artifact_name`}}",
+        "build_hash-{{ user `build_hash` }}",
+        "BuildUUID-{{user `build_uuid`}}"
+      ]
+    },
+    {
+      "type": "virtualbox-vm",
+      "communicator": "ssh",
+      "ssh_username": "ubuntu",
+      "ssh_password": "ubuntu",
+      "headless": "True",
+      "guest_additions_mode": "disable",
+      "vm_name": "Ubuntu_20.04",
+      "skip_export": "True"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": ["sudo hostnamectl set-hostname $PACKER_HOSTNAME"],
+      "environment_vars": ["PACKER_HOSTNAME=packer-{{user `artifact_name`}}"]
+    },
+    {
+      "type": "shell",
+      "script": "../scripts/initial-config.sh",
+      "execute_command": "echo '' | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "wget -O - https://repo.saltstack.com/py3/ubuntu/20.04/$(dpkg --print-architecture)/latest/SALTSTACK-GPG-KEY.pub | sudo apt-key add -",
+        "echo \"deb http://repo.saltstack.com/py3/ubuntu/20.04/$(dpkg --print-architecture)/latest focal main\" | sudo tee -a /etc/apt/sources.list.d/packer-saltstack.list",
+        "sudo apt update -qy",
+        "sudo apt dist-upgrade -qy",
+        "sudo apt install -qy salt-minion",
+        "echo $MINION_ID | sudo tee $MINION_ID_FILE"
+      ],
+      "environment_vars": [
+        "MINION_ID=packer-{{user `artifact_name`}}",
+        "MINION_ID_FILE=/etc/salt/minion_id"
+      ]
+    },
+    {
+      "type": "salt-masterless",
+      "local_state_tree": "../salt/state_tree",
+      "local_pillar_roots": "../salt/pillar",
+      "skip_bootstrap": true,
+      "disable_sudo": false,
+      "minion_config": "../salt/minion/minion_config",
+      "log_level": "{{ user `salt_log_level` }}",
+      "salt_call_args": "saltenv={{user `salt-env`}}"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sudo apt purge salt-minion -yq",
+        "sudo rm -rf /etc/salt/*",
+        "sudo rm -rf /srv/*",
+        "sudo apt update -yq",
+        "sudo apt autoremove -yq",
+        "sudo apt autoclean -yq",
+        "sudo journalctl --rotate",
+        "sudo journalctl --vacuum-time=1s",
+        "sudo systemctl restart systemd-journald"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+##
+# Configures the automatic system update processes
+# This file is deposited by salt; modify at your peril!
+# /etc/apt/apt.conf.d/20auto-upgrades
+# See: https://wiki.debian.org/UnattendedUpgrades
+##
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Unattended-Upgrade "1";

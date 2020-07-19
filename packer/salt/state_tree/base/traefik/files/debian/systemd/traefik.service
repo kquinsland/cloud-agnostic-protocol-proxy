@@ -1,0 +1,82 @@
+[Unit]
+Description=Traefik
+Documentation=https://docs.traefik.io
+After=network-online.target
+Wants=network-online.target systemd-networkd-wait-online.service
+
+# If these checks fial, unit wont start...
+# See: https://www.freedesktop.org/software/systemd/man/systemd.unit.html#AssertFileIsExecutable=
+AssertFileIsExecutable=/usr/local/bin/traefik
+AssertPathExists={{static_config}}
+
+
+[Service]
+Restart=on-abnormal
+
+# a restricted user
+User={{user}}
+Group={{group}}
+
+# Simple stuff :)
+ExecStart=/usr/local/bin/traefik --configfile={{static_config}}
+
+# configure service behavior
+##
+Type=notify
+Restart=always
+WatchdogSec=1s
+
+# Open connections are files...
+LimitNOFILE=1048576
+
+##
+# Keep the /tmp and similar directories private
+PrivateTmp=true
+
+PrivateDevices=true
+
+# Traefik has no need to view Hide /home, /root, and /run/user...
+ProtectHome=true
+# Really, we don't allow traefik to make any changes to anything on disk
+# See: https://www.freedesktop.org/software/systemd/man/systemd.exec.html#ProtectSystem=
+ProtectSystem=full
+ProtectKernelTunables=true
+ProtectControlGroups=true
+
+# Allow Traefik to read from it's dynamic ocnfig location
+ReadOnlyDirectories={{config_dir}}
+
+# Note: rather vague errors if this path is not preset; systemd will not start traefik
+ReadWriteDirectories={{tls_dir}}
+
+
+##
+# Give the binary permission to bind to ports under 1024
+# Needed to redirect port 80 to 443 or listen to any other 'low' port that we may need to forward
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+
+# Traefik should not need more privlidges once it's loaded and running!
+NoNewPrivileges=true
+
+
+[Install]
+WantedBy=multi-user.target
+
+## Useful debugging commands
+# show the unit file
+#   systemctl cat traefik.service
+# disable the service
+#   systemctl disable traefik.service
+# reload the changes
+#   systemctl daemon-reload
+# enable the service
+#   systemctl enable traefik.service
+# edit the unit file
+#   systemctl enable traefik.service
+##
+# Useful all in one for testing: (usedul to have journalctl -xfe -u traefik.service running in 2nd window...)
+#   sudo service traefik stop; sudo nano /etc/systemd/system/traefik.service; sudo systemctl daemon-reload; sudo service traefik start; sudo journalctl -xfe -u traefik.service
+##
+# When the logs get to be too much to parse through, easy way to clear:
+# sudo service traefik stop; sudo journalctl -u traefik.service --rotate; sudo journalctl --vacuum-time=1s -u traefik.service; sudo service traefik start; sudo journalctl -xfe -u traefik.service
