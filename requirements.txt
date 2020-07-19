@@ -1,0 +1,6 @@
+# See: https://github.com/koalalorenzo/python-digitalocean
+python-digitalocean
+
+# An improved version of pprint
+# See: https://pypi.org/project/prettyprinter/
+prettyprinter~=0.18.0
