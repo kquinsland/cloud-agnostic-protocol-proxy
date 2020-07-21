@@ -80,10 +80,12 @@ Notice that in the `traefik.yaml` file we have two new entrypoints: `some-weird-
 
 ### Packer
 
-For local testing, I use a virtualbox image. To build only the digitalocean, use:
+If you don't already have an instance that's suited to running traefik, the [`packer`](/packer/) repo has everything needed to make one. I needed a machine image for digital ocean, but the salt state should turn any ubuntu 20.04 image into a traefik host.
+
+For local testing, I use a virtualbox image. To build only the `digitalocean` builder flag.
 
 ```bash
-./build.sh --only=digitalocean
+$ ./build.sh --only=digitalocean
 [I]   Building $BUILD_HASH is at 2941ac6
 [I]   Copying CAPP files...
 [I]   Building...
@@ -94,3 +96,12 @@ digitalocean: output will be in this color.
 ==> digitalocean: Waiting for droplet to become active...
 <snip>
 ```
+
+Before building any cloud image, make sure the `cloud.auth` file is set up:
+
+```
+$ cat packer/cloud.auth
+export DIGITALOCEAN_API_TOKEN=<SNIP>
+```
+
+Where `DIGITALOCEAN_API_TOKEN` is the environment variable that configures the [`api_token`](https://www.packer.io/docs/builders/digitalocean#api_token)
